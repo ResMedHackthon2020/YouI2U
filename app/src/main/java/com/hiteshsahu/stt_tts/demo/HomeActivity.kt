@@ -21,6 +21,8 @@ import java.util.*
 
 class HomeActivity : BasePermissionActivity() {
 
+    val commandClass = CommandClassifier()
+    
     override fun getActivityLayout(): Int {
         return R.layout.activity_home
     }
@@ -43,7 +45,9 @@ class HomeActivity : BasePermissionActivity() {
                     .with(TranslatorFactory.TRANSLATORS.SPEECH_TO_TEXT,
                             object : ConversionCallback {
                                 override fun onSuccess(result: String) {
-                                    sttOutput.text = result
+                                    result.decapitalize()
+                                    val inputLst: List<String> = result.split(" ")
+
                                 }
 
                                 override fun onCompletion() {
