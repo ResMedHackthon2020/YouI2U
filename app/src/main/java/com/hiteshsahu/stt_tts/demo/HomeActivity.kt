@@ -45,11 +45,25 @@ class HomeActivity : BasePermissionActivity() {
                     .with(TranslatorFactory.TRANSLATORS.SPEECH_TO_TEXT,
                             object : ConversionCallback {
                                 override fun onSuccess(result: String) {
-                                    result.decapitalize()
-                                    val inputLst: List<String> = result.split(" ", "\n")
+                                    var something = result.toLowerCase()
+                                    val inputLst: List<String> = something.split(" ", "\n")
                                     sttOutput.text = result
-                                    commandClass.addCommands(inputLst)
-                                    speakSomething(commandClass.processCommands())
+                                    var output = commandClass.process(inputLst)
+
+                                    if (output == CommandClassifier.STATE.CC_SUCCESS)
+                                    {
+                                        var response = commandClass.GetOurResponse()
+                                        speakSomething(response)
+                                        commandClass.ackDone()
+                                    }
+                                    else if (output == CommandClassifier.STATE.WAIT_FOR_COMMAND)
+                                    {
+                                        speakSomething("I'm waiting for the command")
+                                    }
+                                    else
+                                    {
+                                        speakSomething("Sorry, command is not defined")
+                                    }
                                 }
 
                                 override fun onCompletion() {
