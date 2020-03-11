@@ -35,6 +35,10 @@ class CommandClassifier {
         return ourResponse
     }
 
+    fun GetCommand(): String{
+        return compiledCommand
+    }
+
     fun process(text: List<String>): STATE {
         commandList.clear()
         commandList.addAll(text)
@@ -101,15 +105,14 @@ class CommandClassifier {
         }
         else if (command != COMMANDS.UNDEFINED)
         {
-            if (detectParameters(command))
-            {
-                state = STATE.CC_SUCCESS
-            }
+            detectParameters(command)
+            state = STATE.CC_SUCCESS
         }
 
         if (command == COMMANDS.UNDEFINED)
         {
-            state = STATE.WAIT_FOR_TRIGGER
+            ourResponse = "Undefined command";
+            state = STATE.CC_SUCCESS
         }
     }
 
@@ -124,7 +127,7 @@ class CommandClassifier {
             val param1 = commandList[1]
             val param2 = commandList[2]
             if (param1 == "ramp") {
-                if (param2 == "Auto") {
+                if (param2 == "auto") {
                     ourResponse = "Setting ramp to auto"
                     compiledCommand = "SET RAMP AUTO"
                     classified = true
@@ -134,6 +137,10 @@ class CommandClassifier {
                         ourResponse = "Setting ramp to $param2"
                         compiledCommand = "SET RAMP $param2"
                         classified = true
+                    }
+                    else{
+                        ourResponse = "Undefined command"
+                        compiledCommand = ""
                     }
                 }
             } else if (length >= 4 && param1 == "humidity" && param2 == "level") {
@@ -147,7 +154,7 @@ class CommandClassifier {
         {
             val param1 = commandList[1]
 
-            if (param1 == "ramp")
+            if (param1.contains("ramp"))
             {
                 ourResponse = "Reading ramp value"
                 compiledCommand = "GET RAMP"
@@ -164,19 +171,32 @@ class CommandClassifier {
                     classified = true
                 }
             }
+            else if (length >= 3 && param1 == "my")
+            {
+                val param2 = commandList[2]
+                val param3 = commandList[3]
+
+                if(param2 == "sleep" && param3 == "info")
+                {
+                    ourResponse = "Please wait till we prepare the report."
+                    compiledCommand = "GET SLEEP_REPORT"
+                    classified = true
+                }
+            }
         }
         else if (length >= 3 && command == COMMANDS.WHAT)
         {
             val param1 = commandList[2]
             val param2 = commandList[3]
 
-            if (length >= 3 && param1 == "ramp")
+            if (length >= 3 && param1.contains("ramp"))
             {
                 ourResponse =
                         """
                     Ramp time is the duration the device will gradually ramp up the air pressure.
-                    Please give the value in minutes. Minimum is 0. Maximum is 45.
-                    If you want to set ramp to 5 minutes, please say, set ramp 5
+                    Please give the value in minutes. Minimum is 5. Maximum is 45.
+                    If you want to set ramp to 5 minutes, please say, set ramp 5 or
+                    if yow want to set ramp to auto, please say, set ramp auto
                 """
                 classified = true
             }

@@ -35,7 +35,7 @@ class HomeActivity : BasePermissionActivity() {
 
 
         //SPEECH TO TEXT DEMO
-        speechToText.setOnClickListener({ view ->
+        speechToText.setOnClickListener { view ->
 
             Snackbar.make(view, "Speak now, App is listening", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
@@ -45,14 +45,15 @@ class HomeActivity : BasePermissionActivity() {
                     .with(TranslatorFactory.TRANSLATORS.SPEECH_TO_TEXT,
                             object : ConversionCallback {
                                 override fun onSuccess(result: String) {
-                                    var something = result.toLowerCase()
-                                    val inputLst: List<String> = something.split(" ", "\n")
+                                    var processedResult = result.toLowerCase()
+                                    val inputLst: List<String> = processedResult.split(" ", "\n")
                                     sttOutput.text = result
                                     var output = commandClass.process(inputLst)
 
                                     if (output == CommandClassifier.STATE.CC_SUCCESS)
                                     {
                                         var response = commandClass.GetOurResponse()
+                                        var command = commandClass.GetCommand()
                                         speakSomething(response)
                                         commandClass.ackDone()
                                     }
@@ -71,11 +72,11 @@ class HomeActivity : BasePermissionActivity() {
 
                             }).initialize("Speak Now !!", this@HomeActivity)
 
-        })
+        }
 
 
         //TEXT TO SPEECH DEMO
-        textToSpeech.setOnClickListener({ view ->
+        textToSpeech.setOnClickListener { view ->
 
             val stringToSpeak :String = ttsInput.text.toString()
 
@@ -103,7 +104,7 @@ class HomeActivity : BasePermissionActivity() {
                 Snackbar.make(view, "Please enter some text to speak", Snackbar.LENGTH_LONG).show()
             }
 
-        })
+        }
 
     }
 

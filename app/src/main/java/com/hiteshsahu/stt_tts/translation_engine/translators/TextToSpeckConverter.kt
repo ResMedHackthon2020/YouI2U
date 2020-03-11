@@ -84,6 +84,29 @@ class TextToSpeckConverter(private val conversionCallaBack: ConversionCallback) 
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private fun ttsGreater21(text: String) {
+        textToSpeech!!.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+
+            override fun onStart(utteranceId: String) {
+                Log.d(_tag, "started listening")
+            }
+
+            override fun onError(utteranceId: String?, errorCode: Int) {
+                super.onError(utteranceId, errorCode)
+                conversionCallaBack.onErrorOccurred("Some Error Occurred "+ getErrorText(errorCode))
+
+            }
+
+            override fun onError(utteranceId: String) {
+                conversionCallaBack.onErrorOccurred("Some Error Occurred $utteranceId")
+            }
+
+            override fun onDone(utteranceId: String) {
+                //do some work here
+                conversionCallaBack.onCompletion()
+                finish()
+            }
+        })
+
         val utteranceId = this.hashCode().toString() + ""
         textToSpeech!!.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
     }
