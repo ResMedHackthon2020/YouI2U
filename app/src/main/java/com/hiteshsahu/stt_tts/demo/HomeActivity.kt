@@ -60,10 +60,6 @@ class HomeActivity : BasePermissionActivity() {
                                     {
                                         speakSomething("I'm waiting for the command")
                                     }
-                                    else
-                                    {
-                                        speakSomething("Sorry, command is not defined")
-                                    }
                                 }
 
                                 override fun onCompletion() {

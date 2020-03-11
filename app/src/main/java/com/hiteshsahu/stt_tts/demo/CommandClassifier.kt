@@ -101,46 +101,93 @@ class CommandClassifier {
         }
         else if (command != COMMANDS.UNDEFINED)
         {
-            detectParameters(command);
+            if (detectParameters(command))
+            {
+                state = STATE.CC_SUCCESS
+            }
+        }
+
+        if (command == COMMANDS.UNDEFINED)
+        {
+            state = STATE.WAIT_FOR_TRIGGER
         }
     }
 
-    private fun detectParameters(command: CommandClassifier.COMMANDS) {
+    private fun detectParameters(command: CommandClassifier.COMMANDS): Boolean {
         var length = commandList.size
         var classified: Boolean = false
 
-        if (length >= 4 && command == COMMANDS.SET)
-        {
+        if (length >= 3 && command == COMMANDS.SET) {
             // commands of the form
-            // set ramp to <value>
-            // set humidity level to <value>
+            // set ramp <value>
+            // set humidity level <value>
             val param1 = commandList[1]
             val param2 = commandList[2]
-            var param3 = commandList[3]
-            if (param1 == "ramp" && param2 == "to")
-            {
-                if (param3 == "Auto")
-                {
+            if (param1 == "ramp") {
+                if (param2 == "Auto") {
                     ourResponse = "Setting ramp to auto"
                     compiledCommand = "SET RAMP AUTO"
                     classified = true
-                }
-                else
-                {
-                    val number = param3.toIntOrNull()
-                    if (number != null && number % 5 == 0 && number >= 5 && number <= 45)
-                    {
-                        ourResponse = "Setting ramp to $param3"
-                        compiledCommand = "SET RAMP $param3"
+                } else {
+                    val number = param2.toIntOrNull()
+                    if (number != null && number % 5 == 0 && number >= 5 && number <= 45) {
+                        ourResponse = "Setting ramp to $param2"
+                        compiledCommand = "SET RAMP $param2"
                         classified = true
                     }
                 }
+            } else if (length >= 4 && param1 == "humidity" && param2 == "level") {
+                val param3 = commandList[3]
+                ourResponse = "Setting humidity level to $param3"
+                compiledCommand = "SET HUMIDITY_LEVEL $param3"
+                classified = true
             }
-            else if (length >= 5 && param1 == "humidity" && param2 == "level" && param3 == "to")
+        }
+        else if (length >= 2 && command == COMMANDS.GET)
+        {
+            val param1 = commandList[1]
+
+            if (param1 == "ramp")
             {
-                val param4 = commandList[4]
-                ourResponse = "Setting humidity level to $param4"
-                compiledCommand = "SET HUMIDITY_LEVEL $param4"
+                ourResponse = "Reading ramp value"
+                compiledCommand = "GET RAMP"
+                classified = true
+            }
+            else if (length >= 3 && param1 == "humidity")
+            {
+                val param2 = commandList[2]
+
+                if(param2 == "level")
+                {
+                    ourResponse = "Reading humidity level"
+                    compiledCommand = "GET HUMIDITY_LEVEL"
+                    classified = true
+                }
+            }
+        }
+        else if (length >= 3 && command == COMMANDS.WHAT)
+        {
+            val param1 = commandList[2]
+            val param2 = commandList[3]
+
+            if (length >= 3 && param1 == "ramp")
+            {
+                ourResponse =
+                        """
+                    Ramp time is the duration the device will gradually ramp up the air pressure.
+                    Please give the value in minutes. Minimum is 0. Maximum is 45.
+                    If you want to set ramp to 5 minutes, please say, set ramp 5
+                """
+                classified = true
+            }
+            else if (length >= 4 && param1 == "humidity" && param2 == "level")
+            {
+                ourResponse =
+                        """
+                    The humidity level helps to control the dryness of the air applied through the tubes.
+                    Minimum level is 1. Maximum is 8.
+                    If you want to set the humidity level to 5, please say, set humidity level 5 
+                """
                 classified = true
             }
         }
@@ -150,10 +197,7 @@ class CommandClassifier {
             compiledCommand = ""
         }
 
-        if (classified)
-        {
-            state = STATE.CC_SUCCESS
-        }
+        return classified
     }
 
     private fun detectCommand(word: String): COMMANDS {
