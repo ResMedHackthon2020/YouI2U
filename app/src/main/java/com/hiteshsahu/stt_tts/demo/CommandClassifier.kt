@@ -44,15 +44,35 @@ class CommandClassifier {
 
         if (command == COMMANDS.START)
         {
-            result = "Start therapy command";
+            result = "Starting therapy now!";
         }
         else if (command == COMMANDS.STOP)
         {
-            result = "Stop therapy command";
+            result = "Stopping therapy now!";
+        }
+        else if (command != COMMANDS.UNDEFINED)
+        {
+//            detectParameters(command);
         }
 
         return result
     }
+
+//    private fun detectParameter(command: CommandClassifier.COMMANDS) {
+//        if (command == COMMANDS.SET)
+//        {
+//            val param1 = commandList[1]
+//            val param2 = commandList[2]
+//            if (param1 == "ramp" && param2 == "to")
+//            {
+//
+//            }
+//            else if (param1 == "humidity" && param2 == "level")
+//            {
+//
+//            }
+//        }
+//    }
 
     private fun detectCommand(word: String): COMMANDS {
         return when(word){
