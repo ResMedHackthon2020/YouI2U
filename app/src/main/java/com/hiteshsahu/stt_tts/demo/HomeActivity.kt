@@ -46,13 +46,10 @@ class HomeActivity : BasePermissionActivity() {
                             object : ConversionCallback {
                                 override fun onSuccess(result: String) {
                                     result.decapitalize()
-                                    val inputLst: List<String> = result.split(" ")
+                                    val inputLst: List<String> = result.split(" ", "\n")
                                     sttOutput.text = result
                                     commandClass.addCommands(inputLst)
-                                    if (commandClass.processCommands() == -1)
-                                    {
-                                        speakSomething()
-                                    }
+                                    speakSomething(commandClass.processCommands())
                                 }
 
                                 override fun onCompletion() {
@@ -100,7 +97,7 @@ class HomeActivity : BasePermissionActivity() {
 
     }
 
-    fun speakSomething()
+    fun speakSomething(text: String)
     {
         TranslatorFactory
                 .instance
@@ -115,7 +112,7 @@ class HomeActivity : BasePermissionActivity() {
                             override fun onErrorOccurred(errorMessage: String) {}
                         }
                 )
-                .initialize("Undefined command", this)
+                .initialize(text, this)
     }
 
     fun findString(listOfPossibleMatches: ArrayList<String>?, stringToMatch: String): Boolean {
