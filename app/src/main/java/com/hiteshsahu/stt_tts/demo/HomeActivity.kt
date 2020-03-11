@@ -22,7 +22,7 @@ import java.util.*
 class HomeActivity : BasePermissionActivity() {
 
     val commandClass = CommandClassifier()
-    
+
     override fun getActivityLayout(): Int {
         return R.layout.activity_home
     }
@@ -47,7 +47,12 @@ class HomeActivity : BasePermissionActivity() {
                                 override fun onSuccess(result: String) {
                                     result.decapitalize()
                                     val inputLst: List<String> = result.split(" ")
-
+                                    sttOutput.text = result
+                                    commandClass.addCommands(inputLst)
+                                    if (commandClass.processCommands() == -1)
+                                    {
+                                        speakSomething()
+                                    }
                                 }
 
                                 override fun onCompletion() {
@@ -93,6 +98,24 @@ class HomeActivity : BasePermissionActivity() {
 
         })
 
+    }
+
+    fun speakSomething()
+    {
+        TranslatorFactory
+                .instance
+                .with(TranslatorFactory.TRANSLATORS.TEXT_TO_SPEECH,
+                        object : ConversionCallback {
+                            override fun onSuccess(result: String) {
+                            }
+
+                            override fun onCompletion() {
+                            }
+
+                            override fun onErrorOccurred(errorMessage: String) {}
+                        }
+                )
+                .initialize("Undefined command", this)
     }
 
     fun findString(listOfPossibleMatches: ArrayList<String>?, stringToMatch: String): Boolean {
